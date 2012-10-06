@@ -36,11 +36,25 @@
           "": "index",
           "page/:id": "page"
         },
-        before: function( route ) {
+        before: function( route, rule, name) {
+          if (arguments.length < 3) {
+            name = rule;
+            rule = route;
+            route = undefined;
+          }
           harness.cache.before = (route||true);
+          harness.cache.beforeRule = rule;
+          harness.cache.beforeName = name;
         },
-        after: function( route ) {
+        after: function( route, rule, name ) {
+          if (arguments.length < 3) {
+            name = rule;
+            rule = route;
+            route = undefined;
+          }
           harness.cache.after = (route||true);
+          harness.cache.afterRule = rule;
+          harness.cache.afterName = name;
         },
         index: function( route ){
           harness.cache.route = "";
@@ -85,6 +99,23 @@
 
   });
 
+  test("before and after filters will get rule and name", 8, function() {
+    var testTargetRoute = function(routeRule, routeName) {
+      var filters = ["before", "after"], i, filterName;
+      for (i = 0; i < filters.length; i++) {
+        filterName = filters[i];
+        equal(harness.cache[filterName + "Rule"], routeRule, "successfully get " + routeName + " route rule in " + filterName + " filter");
+        equal(harness.cache[filterName + "Name"], routeName, "successfully get " + routeName + " route name in " + filterName + " filter");
+      }
+    };
+
+    harness.router.navigate('', true);
+    testTargetRoute('', 'index');
+
+    harness.router.navigate('page/test', true);
+    testTargetRoute('page/:id', 'page');
+  });
+
 
   module("returning from before filter", {
     setup: function() {
@@ -99,11 +130,25 @@
           "": "index",
           "page/:id": "page"
         },
-        before: function( route ) {
-          harness.cache.before = (route || true);
+        before: function( route, rule, name ) {
+          if (arguments.length < 3) {
+            name = rule;
+            rule = route;
+            route = undefined;
+          }
+          harness.cache.before = (route||true);
+          harness.cache.beforeRule = rule;
+          harness.cache.beforeName = name;
         },
-        after: function( route ) {
+        after: function( route, rule, name ) {
+          if (arguments.length < 3) {
+            name = rule;
+            rule = route;
+            route = undefined;
+          }
           harness.cache.after = (route||true);
+          harness.cache.afterRule = rule;
+          harness.cache.afterName = name;
         },
         index: function( route ){
           harness.cache.route = "";
@@ -166,11 +211,25 @@
           "page/:id": "page",
           "foo/:id": "page"
         },
-        before: function( route ) {
-          harness.cache.before = (route || true);
+        before: function( route, rule, name ) {
+          if (arguments.length < 3) {
+            name = rule;
+            rule = route;
+            route = undefined;
+          }
+          harness.cache.before = (route||true);
+          harness.cache.beforeRule = rule;
+          harness.cache.beforeName = name;
         },
-        after: function( route ) {
+        after: function( route, rule, name ) {
+          if (arguments.length < 3) {
+            name = rule;
+            rule = route;
+            route = undefined;
+          }
           harness.cache.after = (route||true);
+          harness.cache.afterRule = rule;
+          harness.cache.afterName = name;
         },
         index: function( route ){
           harness.cache.route = "";

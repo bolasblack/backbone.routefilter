@@ -47,6 +47,20 @@ router.before = function( route ) {
 }
 ```
 
+### Routing name and routing rule
+`before` and `after` filter will get the routing name and rule. This is useful if you want to do something according to route name or route rule. For example:
+
+```javascript
+route.before = function() {
+  var args = Array.prototype.slice.call(arguments, -2),
+    rule = args[0],
+    name = args[1];
+  if ( name !== "login" ) {
+    // do something ...
+  }
+}
+```
+
 ### What happens if my route doesn't have a handler?
 Backbone supports binding routes to route names without actually supplying a route handler callback. Doing so causes Backbone to just dispatch a `route:[name]` event on the router where the name was matched. If you've written `before` or `after` filters, they _will_ be called when any route is matched, whether or not it has a handler callback.
 
