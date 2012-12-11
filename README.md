@@ -47,14 +47,13 @@ router.before = function( route ) {
 }
 ```
 
-### Routing name and routing rule
-`before` and `after` filter will get the routing name and rule. This is useful if you want to do something according to route name or route rule. For example:
+### Routing name
+`before` and `after` filter will get the routing name. This is useful if you want to do something according to route name. For example:
 
 ```javascript
 route.before = function() {
-  var args = Array.prototype.slice.call(arguments, -2),
-    rule = args[0],
-    name = args[1];
+  var args = Array.prototype.slice.call(arguments, -1),
+    name = args[0];
   if ( name !== "login" ) {
     // do something ...
   }

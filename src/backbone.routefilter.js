@@ -45,8 +45,8 @@
       // the before and after filters as well as the original callback
       // internally.
       var wrappedCallback = _.bind( function() {
-        // route regexp and route name will be last arguement of filters
-        var filterArgs = Array.prototype.slice.call( arguments ).concat( route, name );
+        // route name will be last arguement of filters
+        var filterArgs = Array.prototype.slice.call( arguments ).concat( name );
 
         // Call the before filter and if it returns false, run the
         // route's original callback, and after filter. This allows

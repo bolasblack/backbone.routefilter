@@ -36,24 +36,20 @@
           "": "index",
           "page/:id": "page"
         },
-        before: function( route, rule, name) {
-          if (arguments.length < 3) {
-            name = rule;
-            rule = route;
+        before: function( route, name ) {
+          if (arguments.length < 2) {
+            name = route;
             route = undefined;
           }
           harness.cache.before = (route||true);
-          harness.cache.beforeRule = rule;
           harness.cache.beforeName = name;
         },
-        after: function( route, rule, name ) {
-          if (arguments.length < 3) {
-            name = rule;
-            rule = route;
+        after: function( route, name ) {
+          if (arguments.length < 2) {
+            name = route;
             route = undefined;
           }
           harness.cache.after = (route||true);
-          harness.cache.afterRule = rule;
           harness.cache.afterName = name;
         },
         index: function( route ){
@@ -99,21 +95,25 @@
 
   });
 
-  test("before and after filters will get rule and name", 8, function() {
-    var testTargetRoute = function(routeRule, routeName) {
+  test("before and after filters will get route name", 4, function() {
+    var testTargetRoute = function(routeName) {
       var filters = ["before", "after"], i, filterName;
       for (i = 0; i < filters.length; i++) {
         filterName = filters[i];
-        equal(harness.cache[filterName + "Rule"], routeRule, "successfully get " + routeName + " route rule in " + filterName + " filter");
-        equal(harness.cache[filterName + "Name"], routeName, "successfully get " + routeName + " route name in " + filterName + " filter");
+
+        equal(
+          routeName,
+          harness.cache[filterName + "Name"],
+          "successfully get " + routeName + " route name in " + filterName + " filter"
+        );
       }
     };
 
     harness.router.navigate('', true);
-    testTargetRoute('', 'index');
+    testTargetRoute('index');
 
     harness.router.navigate('page/test', true);
-    testTargetRoute('page/:id', 'page');
+    testTargetRoute('page');
   });
 
 
@@ -131,23 +131,19 @@
           "page/:id": "page"
         },
         before: function( route, rule, name ) {
-          if (arguments.length < 3) {
-            name = rule;
-            rule = route;
+          if (arguments.length < 2) {
+            name = route;
             route = undefined;
           }
           harness.cache.before = (route||true);
-          harness.cache.beforeRule = rule;
           harness.cache.beforeName = name;
         },
         after: function( route, rule, name ) {
-          if (arguments.length < 3) {
-            name = rule;
-            rule = route;
+          if (arguments.length < 2) {
+            name = route;
             route = undefined;
           }
           harness.cache.after = (route||true);
-          harness.cache.afterRule = rule;
           harness.cache.afterName = name;
         },
         index: function( route ){
@@ -190,9 +186,23 @@
     // Navigate to the place our before filter is handling.
     harness.router.navigate('page/bar', true);
 
-    equal(harness.cache.before, "bar", "The before filter was called, and was passed the correct arg, bar.");
-    equal(harness.cache.after, "foo", "The orginal route callback was not called after the before filter was over ridden to return false.");
-    equal(harness.cache.after, "foo", "The after filter was not called after the before filter was over ridden to return false");
+    equal(
+      harness.cache.before,
+      "bar",
+      "The before filter was called, and was passed the correct arg, bar."
+    );
+
+    equal(
+      harness.cache.after,
+      "foo",
+      "The orginal route callback was not called after the before filter was over ridden to return false."
+    );
+
+    equal(
+      harness.cache.after,
+      "foo",
+      "The after filter was not called after the before filter was over ridden to return false"
+    );
 
   });
 
@@ -212,23 +222,19 @@
           "foo/:id": "page"
         },
         before: function( route, rule, name ) {
-          if (arguments.length < 3) {
-            name = rule;
-            rule = route;
+          if (arguments.length < 2) {
+            name = route;
             route = undefined;
           }
           harness.cache.before = (route||true);
-          harness.cache.beforeRule = rule;
           harness.cache.beforeName = name;
         },
         after: function( route, rule, name ) {
-          if (arguments.length < 3) {
-            name = rule;
-            rule = route;
+          if (arguments.length < 2) {
+            name = route;
             route = undefined;
           }
           harness.cache.after = (route||true);
-          harness.cache.afterRule = rule;
           harness.cache.afterName = name;
         },
         index: function( route ){
@@ -260,12 +266,20 @@
     // Navigate to the first route.
     harness.router.navigate('page/2', true);
 
-    equal(harness.cache.route, 2, "successfully routed to the first double bound route, and it equaled the right thing");
+    equal(
+      harness.cache.route,
+      2,
+      "successfully routed to the first double bound route, and it equaled the right thing"
+    );
 
     // Navigate to the second route.
     harness.router.navigate('foo/3', true);
 
-    equal(harness.cache.route, 3, "successfully routed to the second double bound route, and it equaled the right thing");
+    equal(
+      harness.cache.route,
+      3,
+      "successfully routed to the second double bound route, and it equaled the right thing"
+    );
 
   });
 
@@ -279,7 +293,11 @@
     // Navigate to the new route
     harness.router.navigate('bar/2', true);
 
-    equal(harness.cache.route, 2, "successfully routed to the double bound route, and it equaled the right thing");
+    equal(
+      harness.cache.route,
+      2,
+      "successfully routed to the double bound route, and it equaled the right thing"
+    );
 
   });
 
