@@ -4,6 +4,14 @@
 /*global Backbone:false, _: false, console: false*/
 
 ;(function(Backbone, _) {
+  // Replace `Backbone.History.getHash`, ignore the last question mark
+  Backbone.History.prototype.getHash = function(window) {
+    var match = (window || (function() { return this })())
+        .location.href.match(/#(.*)\?/)
+
+    return match ? match[1] : ''
+  }
+
 
   var
     // Save a reference to the original route method to be called

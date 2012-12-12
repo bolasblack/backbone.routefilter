@@ -146,6 +146,18 @@
     testTargetRoute('page');
   });
 
+  test("change query param will not trigger handler", 2, function() {
+    harness.router.navigate("page/index", true)
+
+    equal(harness.cache.name, "page")
+
+    harness.cache.name = "other"
+
+    window.location.hash = "page/index?aa=bb"
+
+    equal(harness.cache.name, "other")
+  })
+
   test("filter and handler will get query param", 6, function() {
     var assertParam = function(resultParam, expectParam, filterName) {
       _(expectParam).forEach(function(value, key) {
