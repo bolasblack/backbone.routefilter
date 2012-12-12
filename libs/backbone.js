@@ -870,7 +870,6 @@
     if (options.routes) this.routes = options.routes;
     this._bindRoutes();
     this.initialize.apply(this, arguments);
-    this.before();
   };
 
   // Cached regular expressions for matching named param parts and splatted

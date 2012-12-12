@@ -3,16 +3,33 @@
 * Copyright (c) 2012 Boaz Sender; Licensed MIT */
 /*global Backbone:false, _: false, console: false*/
 
-(function(Backbone, _) {
+;(function(Backbone, _) {
 
-  // Save a reference to the original route method to be called
-  // after we pave it over.
-  var originalRoute = Backbone.Router.prototype.route;
+  var
+    // Save a reference to the original route method to be called
+    // after we pave it over.
+    originalRoute = Backbone.Router.prototype.route,
 
-  // Create a reusable no operation func for the case where a before
-  // or after filter is not set. Backbone or Underscore should have
-  // a global one of these in my opinion.
-  var nop = function(){};
+    // Create a reusable no operation func for the case where a before
+    // or after filter is not set. Backbone or Underscore should have
+    // a global one of these in my opinion.
+    nop = function(){},
+
+    // Parse querystring to a hash map
+    parseQueryParam = function(urlHash) {
+      var
+        param = {},
+        querydata = urlHash.match(/[^?]*\?(.*)/),
+        querystring_parser = /(?:^|&)([^&=]*)=?([^&]*)/g
+
+      if (!querydata) { return param }
+
+      querydata[1].replace(querystring_parser, function($0, $1, $2) {
+        if ($1) { param[decodeURIComponent($1)] = decodeURIComponent($2) }
+      })
+
+      return param
+    }
 
   // Extend the router prototype with a default before function,
   // a default after function, and a pave over of _bindRoutes.
@@ -37,43 +54,40 @@
       // because we are about to wrap the callback in a function that calls
       // the before and after filters as well as the original callback that
       // was passed in.
-      if( !callback ){
-        callback = this[ name ];
-      }
+      if( !callback ){ callback = this[ name ] }
 
       // Create a new callback to replace the original callback that calls
       // the before and after filters as well as the original callback
       // internally.
       var wrappedCallback = _.bind( function() {
         // route name will be last arguement of filters
-        var filterArgs = Array.prototype.slice.call( arguments ).concat( name );
+        var
+          param = parseQueryParam(window.location.hash),
+          routeOption = {param: param, name: name},
+          filterArgs = _( arguments ).toArray().concat( routeOption )
 
         // Call the before filter and if it returns false, run the
         // route's original callback, and after filter. This allows
         // the user to return false from within the before filter
         // to prevent the original route callback and after
         // filter from running.
-        if ( this.before.apply( this, filterArgs ) === false) {
-          return;
-        }
+        if ( this.before.apply( this, filterArgs ) === false ) { return }
 
         // If the callback exists, then call it. This means that the before
         // and after filters will be called whether or not an actual
         // callback function is supplied to handle a given route.
-        if( callback ) {
-          callback.apply( this, arguments );
-        }
+        if( callback ) { callback.apply( this, filterArgs ) }
 
         // Call the after filter.
-        this.after.apply( this, filterArgs );
+        this.after.apply( this, filterArgs )
 
-      }, this);
+      }, this)
 
       // Call our original route, replacing the callback that was originally
       // passed in when Backboun.Router.route was invoked with our wrapped
       // callback that calls the before and after callbacks as well as the
       // original callback.
-      return originalRoute.call( this, route, name, wrappedCallback );
+      return originalRoute.call( this, route, name, wrappedCallback )
     }
 
   });

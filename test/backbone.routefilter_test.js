@@ -22,7 +22,16 @@
       raises(block, [expected], [message])
   */
 
-  var harness = window.harness = {};
+  var
+    harness = window.harness = {}
+    promiseArgs = function( route, option ) {
+      if (option == null) {
+        option = route;
+        route = undefined;
+      }
+
+      return {route: route, option: option}
+    }
 
   module("routes", {
     setup: function() {
@@ -36,27 +45,45 @@
           "": "index",
           "page/:id": "page"
         },
-        before: function( route, name ) {
-          if (arguments.length < 2) {
-            name = route;
-            route = undefined;
-          }
+        before: function( route, option ) {
+          var
+            args = promiseArgs( route, option ),
+            route = args.route,
+            option = args.option
+
           harness.cache.before = (route||true);
-          harness.cache.beforeName = name;
+          harness.cache.beforeName = option.name;
+          harness.cache.beforeParam = option.param;
         },
-        after: function( route, name ) {
-          if (arguments.length < 2) {
-            name = route;
-            route = undefined;
-          }
+        after: function( route, option ) {
+          var
+            args = promiseArgs( route, option ),
+            route = args.route,
+            option = args.option
+
           harness.cache.after = (route||true);
-          harness.cache.afterName = name;
+          harness.cache.afterName = option.name;
+          harness.cache.afterParam = option.param;
         },
-        index: function( route ){
+        index: function( route, option ){
+          var
+            args = promiseArgs( route, option ),
+            route = args.route,
+            option = args.option
+
           harness.cache.route = "";
+          harness.cache.name = option.name;
+          harness.cache.param = option.param;
         },
-        page: function( route ){
+        page: function( route, option ){
+          var
+            args = promiseArgs( route, option ),
+            route = args.route,
+            option = args.option
+
           harness.cache.route = route;
+          harness.cache.name = option.name;
+          harness.cache.param = option.param;
         }
       });
 
@@ -95,25 +122,54 @@
 
   });
 
-  test("before and after filters will get route name", 4, function() {
+  test("filter and handler will get route name", 3, function() {
     var testTargetRoute = function(routeName) {
       var filters = ["before", "after"], i, filterName;
       for (i = 0; i < filters.length; i++) {
         filterName = filters[i];
 
         equal(
-          routeName,
           harness.cache[filterName + "Name"],
+          routeName,
           "successfully get " + routeName + " route name in " + filterName + " filter"
         );
       }
-    };
 
-    harness.router.navigate('', true);
-    testTargetRoute('index');
+      equal(
+        harness.cache.name,
+        routeName,
+        "successfully get " + routeName + " route name in " + routeName
+      );
+    };
 
     harness.router.navigate('page/test', true);
     testTargetRoute('page');
+  });
+
+  test("filter and handler will get query param", 6, function() {
+    var assertParam = function(resultParam, expectParam, filterName) {
+      _(expectParam).forEach(function(value, key) {
+        var message = "successfully get query param {" + key + ": " + value + "}"
+
+        if (filterName) { message += " in " + filterName + " filter" }
+        equal(value, resultParam[key], message)
+      })
+    };
+
+    var testTargetRoute = function(expectParam) {
+      var filters = ["before", "after"], i, filterName;
+      for (i = 0; i < filters.length; i++) {
+        filterName = filters[i];
+
+        assertParam(harness.cache[filterName + "Param"], expectParam, filterName);
+      }
+
+      assertParam(harness.cache.param, expectParam);
+    };
+
+    var URIComponent = encodeURIComponent("你好");
+    harness.router.navigate('page/test?111=' + URIComponent + "&" + URIComponent + "=333", true);
+    testTargetRoute({"111": "你好", "你好": "333"});
   });
 
 
@@ -130,26 +186,36 @@
           "": "index",
           "page/:id": "page"
         },
-        before: function( route, rule, name ) {
-          if (arguments.length < 2) {
-            name = route;
-            route = undefined;
-          }
+        before: function( route, option ) {
+          var
+            args = promiseArgs( route, option ),
+            route = args.route,
+            option = args.option
+
           harness.cache.before = (route||true);
-          harness.cache.beforeName = name;
         },
-        after: function( route, rule, name ) {
-          if (arguments.length < 2) {
-            name = route;
-            route = undefined;
-          }
+        after: function( route, option ) {
+          var
+            args = promiseArgs( route, option ),
+            route = args.route,
+            option = args.option
+
           harness.cache.after = (route||true);
-          harness.cache.afterName = name;
         },
-        index: function( route ){
+        index: function( route, option ){
+          var
+            args = promiseArgs( route, option ),
+            route = args.route,
+            option = args.option
+
           harness.cache.route = "";
         },
-        page: function( route ){
+        page: function( route, option ){
+          var
+            args = promiseArgs( route, option ),
+            route = args.route,
+            option = args.option
+
           harness.cache.route = route;
         }
       });
@@ -175,7 +241,7 @@
     harness.router.navigate('page/foo', true);
 
     // Override the before filter on the fly
-    harness.router.before = function( route ) {
+    harness.router.before = function( route, option ) {
       harness.cache.before = (route || true);
 
       if( route === 'bar' ){
@@ -221,26 +287,36 @@
           "page/:id": "page",
           "foo/:id": "page"
         },
-        before: function( route, rule, name ) {
-          if (arguments.length < 2) {
-            name = route;
-            route = undefined;
-          }
+        before: function( route, option ) {
+          var
+            args = promiseArgs( route, option ),
+            route = args.route,
+            option = args.option
+
           harness.cache.before = (route||true);
-          harness.cache.beforeName = name;
         },
-        after: function( route, rule, name ) {
-          if (arguments.length < 2) {
-            name = route;
-            route = undefined;
-          }
+        after: function( route, option ) {
+          var
+            args = promiseArgs( route, option ),
+            route = args.route,
+            option = args.option
+
           harness.cache.after = (route||true);
-          harness.cache.afterName = name;
         },
-        index: function( route ){
+        index: function( route, option ){
+          var
+            args = promiseArgs( route, option ),
+            route = args.route,
+            option = args.option
+
           harness.cache.route = "";
         },
-        page: function( route ){
+        page: function( route, option ){
+          var
+            args = promiseArgs( route, option ),
+            route = args.route,
+            option = args.option
+
           harness.cache.route = route;
         }
       });
