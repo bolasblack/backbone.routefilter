@@ -105,8 +105,22 @@
 
     harness.router.navigate('page/2', true);
     equal(harness.cache.route, 2, "successfully routed to page/2, and recieved route arg of 2");
-
   });
+
+  test("navigate param data will not trigger handler", 2, function() {
+    harness.router.navigate("page/index", true)
+    equal(harness.cache.name, "page")
+
+    harness.cache.name = "other"
+    harness.router.navigate("page/index?aa=bb")
+    equal(harness.cache.name, "other")
+  })
+
+  test("navigate could trigger param data hash", 2, function() {
+    harness.router.navigate("page/index?aa=bb", true)
+    equal(harness.cache.name, "page")
+    equal(harness.cache.param.aa, "bb")
+  })
 
   // Ensure the basic navigation still works like normal routers
   test("before and after filters work", 4, function() {
@@ -146,18 +160,6 @@
     testTargetRoute('page');
   });
 
-  test("change query param will not trigger handler", 2, function() {
-    harness.router.navigate("page/index", true)
-
-    equal(harness.cache.name, "page")
-
-    harness.cache.name = "other"
-
-    window.location.hash = "page/index?aa=bb"
-
-    equal(harness.cache.name, "other")
-  })
-
   test("filter and handler will get query param", 6, function() {
     var assertParam = function(resultParam, expectParam, filterName) {
       _(expectParam).forEach(function(value, key) {
@@ -179,8 +181,9 @@
       assertParam(harness.cache.param, expectParam);
     };
 
+    harness.router.navigate('page/index', true);
     var URIComponent = encodeURIComponent("你好");
-    harness.router.navigate('page/test?111=' + URIComponent + "&" + URIComponent + "=333", true);
+    harness.router.navigate('page/index?111=' + URIComponent + "&" + URIComponent + "=333", true);
     testTargetRoute({"111": "你好", "你好": "333"});
   });
 
