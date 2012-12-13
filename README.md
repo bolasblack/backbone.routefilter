@@ -2,12 +2,6 @@
 
 Before and after filters for Backbone.Router. Useful for doing things like client side content not found pages– any time you want to do something to every route before or after it's routed, this is a good way to do it.
 
-## Get the source
-Download the [production version][min] or the [development version][max].
-
-[min]: https://raw.github.com/boazsender/backbone.routefilter/master/dist/backbone.routefilter.min.js
-[max]: https://raw.github.com/boazsender/backbone.routefilter/master/dist/backbone.routefilter.js
-
 ## Overview
 Backbone.routefilter works by overriding `Backbone.Router.prototype.route`. Whenever the a router's `route` method is called, Backbone.routefilter wraps the route callback (or route handler) that's passed in a 'wrapper handler', that calls whatever `before` or `after` "filters" you have written along with the original route callback.
 
@@ -47,16 +41,27 @@ router.before = function( route ) {
 }
 ```
 
-### Routing name
-`before` and `after` filter will get the routing name. This is useful if you want to do something according to route name. For example:
+### Routing option
+`before` and `after` filter and route hanlder will get the routing option. Include route name and route query param.
+
+This is useful if you want to do something according to route name. For example:
 
 ```javascript
 route.before = function() {
-  var args = Array.prototype.slice.call(arguments, -1),
-    name = args[0];
-  if ( name !== "login" ) {
+  var option = _(arguments).last()
+
+  if ( option.name !== "login" ) {
     // do something ...
   }
+}
+```
+
+```javascript
+route.index = function(option) {
+  var viewOption = {}
+
+  if (option.param.filter) { viewOption.filter = option.param.filter }
+  new SomeView(viewOption)
 }
 ```
 
@@ -73,7 +78,7 @@ This quickstart is also available in the JSFiddle interactive editor: [http://js
 <script src="http://code.jquery.com/jquery.js"></script>
 <script src="http://underscorejs.org/underscore.js"></script>
 <script src="http://backbonejs.org/backbone.js"></script>
-<script src="https://raw.github.com/boazsender/backbone.routefilter/master/dist/backbone.routefilter.js"></script>
+<script src="https://raw.github.com/bolasblack/backbone.routefilter/master/dist/backbone.routefilter.js"></script>
 <script>
 jQuery(function($) {
   // Set up a a Router.
@@ -106,10 +111,10 @@ jQuery(function($) {
       console.log('The after filter ran and the route was ' + route + '!');
 
     },
-    index: function(){
+    index: function(option){
 
       // Do what ever you would normally do inside of a route handler.
-      console.log('navigated to index.');
+      console.log('navigated to index, and url param is', option.param);
 
     },
     page: function( route ){
@@ -149,10 +154,6 @@ jQuery(function($) {
 </body>
 </html>
 ```
-
-## Release History
-* v0.1.0 - 08/29/2012 - backbone.routefilter first release (unit test coverage, stable api, and stable plugin approach).
-* v0.1.0-pre - 08/28/2012 - backbone.routefilter is pre release
 
 ## License
 Copyright (c) 2012 Boaz Sender
